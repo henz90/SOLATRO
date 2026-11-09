@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOLATRO</title>
+<style>
+:root{--cw:clamp(44px,13.5vw,94px);--bg:#0e4d2e;--panel:#14603a;--ink:#f5f1e6;--muted:#b9d9c4;--accent:#e8c35a;--red:#d9403f;--card:#fbfaf6;--line:#2c7a4d;--ok:#4caf7a;--warn:#0b3d25}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#0e4d2e;color:var(--ink);min-height:100vh;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px))}
+h1{margin:0;font-size:28px;letter-spacing:1px}
+h2{margin:0 0 8px}
+h3{margin:18px 0 6px;font-size:22px}
+.head{max-width:980px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:flex-start}
+.hdrbtns{display:flex;gap:8px;align-items:flex-start}
+.iconbtn{padding:8px 10px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.menu{position:relative}
+.menuList{display:none;position:absolute;right:0;top:110%;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:6px;min-width:200px;z-index:60}
+.menuList.open{display:block}
+.menuList button{display:block;width:100%;text-align:left;background:transparent;border:0;color:var(--ink);padding:10px 12px;border-radius:8px;font-family:inherit;font-size:15px;cursor:pointer}
+.menuList button:hover{background:var(--line)}
+#tutorial{position:fixed;inset:0;background:rgba(4,22,13,.82);display:none;align-items:center;justify-content:center;padding:16px;z-index:90}
+.tut-modal{text-align:center}
+.tut-modal p{font-size:16px;line-height:1.45;margin:10px 0}
+.tut-stage{position:relative;height:170px;display:flex;align-items:center;justify-content:center;background:#0b3d25;border-radius:12px;overflow:hidden;margin:12px 0}
+.tut-row{position:relative;display:flex;gap:10px;justify-content:center}
+.tut-counters{display:flex;gap:10px;width:90%;justify-content:center}
+.tut-prog{position:relative;width:80%;height:34px;background:#14603a;border-radius:8px;overflow:hidden}
+.tut-prog span{position:absolute;left:0;top:0;bottom:0;width:0;background:#4caf7a;animation:tutFill 3s ease-in-out infinite}
+.tut-ptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;text-shadow:0 1px 2px #000}
+.tut-pick{animation:tutLift 2s ease-in-out infinite;border-color:#e8c35a !important}
+.tut-glow{animation:tutGlow 1.6s ease-in-out infinite}
+.tut-glow2{animation:tutGlow 1.6s ease-in-out .8s infinite}
+.tut-score{animation:tutScore 2s ease-in-out infinite}
+.tut-pop{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-weight:900;font-size:24px;color:#ffd24a;text-shadow:0 2px 6px #000;animation:tutPop 2.4s ease-out infinite;white-space:nowrap}
+.tut-shop{display:flex;align-items:center;gap:14px}
+.tut-bonus{background:#e8c35a;color:#222;font-weight:900;padding:8px 14px;border-radius:10px;animation:tutSlide 2.4s ease-out infinite}
+.tut-item{background:#14603a;border:2px solid #2c7a4d;padding:10px 14px;border-radius:10px;font-weight:700}
+.tut-stack{position:relative;width:92%;height:64px}
+.tut-stack .flash{position:absolute;left:0;right:0;top:0;margin:0}
+.tut-f1{animation:tutA 4s infinite}
+.tut-f2{animation:tutB 4s infinite}
+.tut-dots{display:flex;gap:8px;justify-content:center;margin:6px 0 0}
+.tut-dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.tut-dot.on{background:var(--accent)}
+@keyframes tutFill{0%{width:0}60%,100%{width:70%}}
+@keyframes tutLift{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes tutGlow{0%,100%{box-shadow:0 0 0 0 #e8c35a00}50%{box-shadow:0 0 0 4px #e8c35a}}
+@keyframes tutScore{0%,100%{outline:3px solid #4caf7a00}50%{outline:3px solid #4caf7a;outline-offset:3px}}
+@keyframes tutPop{0%{opacity:0;transform:translate(-50%,10px)}30%,70%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-14px)}}
+@keyframes tutSlide{0%{opacity:0;transform:translateX(-20px)}40%,100%{opacity:1;transform:translateX(0)}}
+@keyframes tutA{0%,50%{opacity:1}60%,100%{opacity:0}}
+@keyframes tutB{0%,50%{opacity:0}60%,95%{opacity:1}100%{opacity:0}}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) clamp(220px,28vw,260px);gap:16px;max-width:980px;margin:0 auto}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}}
+.panel{background:var(--panel);border-radius:14px;padding:16px;min-width:0}
+.muted{color:var(--muted);font-size:14px}
+.prog{position:relative;height:30px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 4px}
+.prog>span{display:block;height:100%;background:var(--ok);transition:width .3s}
+.progtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;text-shadow:0 1px 2px #000;pointer-events:none}
+.split{display:flex;height:100%;width:100%}
+.split>div{min-width:max-content;flex:1 1 0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;text-shadow:0 1px 2px #000;white-space:nowrap}
+.seg1{background:var(--ok)}
+.seg2{background:var(--accent);color:#222;text-shadow:none;border-left:2px solid #222}
+.flash{font-weight:800;font-size:18px;padding:12px;border-radius:10px;text-align:center;margin-bottom:10px}
+.flash.gold{background:var(--accent);color:#222}
+.flash.red{background:#c0392b;color:#fff}
+.flash.black{background:#0b0b0b;color:var(--ink);border:2px solid var(--accent)}
+.handwrap{width:calc(var(--cw)*5 + 40px);max-width:100%;margin:0 auto}
+.handhdr{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px}
+.handhdr .seg{flex:1}
+.clearbtn{padding:7px 12px;font-size:14px}
+.seg{display:flex;width:100%;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;padding:7px 14px;border:0;background:transparent;color:var(--ink);font-weight:700;font-family:inherit;font-size:14px;cursor:pointer}
+.seg button.on{background:var(--accent);color:#222}
+.hand{display:flex;flex-direction:column;gap:10px;align-items:center;min-height:calc(var(--cw)*1.4 + 20px);padding:14px 0 6px}
+.handrow{display:flex;gap:10px;justify-content:center}
+.card{width:var(--cw);height:calc(var(--cw)*1.4);background:var(--card);border:2px solid #555;border-radius:10px;padding:calc(var(--cw)*.08);display:flex;flex-direction:column;justify-content:space-between;align-items:center;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #0005;transition:transform .15s}
+.card .big{font-size:calc(var(--cw)*.55);line-height:1;text-align:center}
+.card .rk{font-size:calc(var(--cw)*.36);line-height:1;align-self:flex-start}
+.card.sel{border-color:var(--accent);transform:translateY(-12px)}
+.card.scoring{outline:3px solid var(--ok);outline-offset:3px}
+.card.suit-0{color:#111}
+.card.suit-1{color:#d9403f}
+.card.suit-2{color:#e08a00}
+.card.suit-3{color:#1e6b2e}
+.jokercard{color:#6a2bb0}
+.jokercard .big{display:flex;justify-content:center}
+.jokercard .big svg{width:calc(var(--cw)*.55);height:auto}
+.btn{padding:10px 14px;border:0;border-radius:10px;background:var(--accent);color:#222;font-weight:700;cursor:pointer;font-size:15px;font-family:inherit}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:var(--line);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.piles{display:flex;gap:12px;justify-content:center;margin:8px 0 0}
+.pile{background:#0b3d25;border:2px solid var(--line);border-radius:12px;padding:8px 14px;color:var(--ink);font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:15px}
+.pile:hover{border-color:var(--accent)}
+.pile b{color:var(--accent);font-size:20px}
+.counters{display:flex;gap:12px;justify-content:center;margin:8px 0 4px}
+.counter{flex:1;max-width:240px;background:#0b3d25;border:2px solid var(--accent);border-radius:14px;text-align:center;padding:10px 6px;color:var(--ink);font-family:inherit;cursor:pointer}
+.counter:disabled{opacity:.45;cursor:not-allowed}
+.counter.disc{border-color:var(--muted)}
+.counter .num{font-size:clamp(36px,6vw,56px);font-weight:800;line-height:1;color:var(--accent)}
+.counter .lbl{font-size:16px;font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.counter .hint{font-size:13px;color:var(--muted);margin-top:4px}
+.tokbtn{padding:12px 18px;border-radius:12px;border:2px solid var(--line);background:var(--line);color:var(--ink);font-weight:800;font-size:17px;cursor:pointer;font-family:inherit}
+.tokbtn:disabled{opacity:.4;cursor:not-allowed}
+.tokbtn.glow{background:#2a2110;border-color:#ffd24a;color:#ffd24a;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 10px 2px #ffc93c77}50%{box-shadow:0 0 24px 8px #ffc93cbb}}
+.shieldbadge{background:#1f5f8b;color:#fff;font-weight:900;font-size:17px;letter-spacing:.5px;padding:10px 14px;border-radius:12px;border:2px solid #7fd1ff;box-shadow:0 0 14px 2px #7fd1ff88;text-align:center;margin-bottom:10px}
+.preview{display:block;margin:10px auto 0;max-width:100%;background:#0b3d25;border:2px solid var(--line);border-radius:12px;padding:8px;text-align:center}
+.preview.dbl{border-color:#ffd24a;box-shadow:0 0 12px 2px #ffc93c66}
+.pvcards{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:50px;align-items:center}
+.mini{width:40px;height:56px;background:var(--card);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;line-height:1;box-shadow:0 2px 0 #0005}
+.mini .mr{font-size:16px}
+.mini .ms{font-size:20px}
+.mini.suit-0{color:#111}
+.mini.suit-1{color:#d9403f}
+.mini.suit-2{color:#e08a00}
+.mini.suit-3{color:#1e6b2e}
+.mini.jokercard svg{width:26px;height:26px}
+.mini.dim{opacity:.3;filter:grayscale(.7)}
+.pvname{margin-top:6px;font-size:16px;font-weight:700;color:var(--accent)}
+.pilegrid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.pilegrid .mini{width:52px;height:72px}
+.pilegrid .mini .mr{font-size:20px}
+.pilegrid .mini .ms{font-size:26px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:5px 2px;border-bottom:1px solid var(--line)}
+.sum td{padding:9px 4px;font-size:16px}
+.hands td{padding:8px 2px;font-size:clamp(14px,1.3vw,17px)}
+.hands tr.on td{background:var(--accent);color:#222;font-weight:700}
+.hands tr.dbl td.pts{color:#ffd24a}
+.hands tr.on.dbl td.pts{color:#5c2d00}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.iname{grid-column:1;grid-row:1;font-size:clamp(17px,4.6vw,22px);font-weight:800}
+.icost{font-size:18px;color:var(--accent)}
+.idesc{grid-column:1;grid-row:2;font-size:clamp(13px,3.6vw,16px);color:var(--muted)}
+.item .btn{grid-column:2;grid-row:1 / span 2;white-space:nowrap}
+.ictl{grid-column:2;grid-row:1 / span 2;justify-self:end}
+.qty{display:flex;gap:8px;align-items:center}
+.qn{min-width:24px;text-align:center;font-weight:800;font-size:18px}
+.cart{margin-top:14px;padding-top:6px;border-top:2px solid var(--accent)}
+.cline{display:flex;justify-content:space-between;padding:4px 0;font-size:16px}
+.ctotal{display:flex;justify-content:space-between;font-size:20px;font-weight:800;padding:10px 0 4px;border-top:1px solid var(--line);margin-top:6px}
+.clearhdr{font-size:24px;font-weight:800;color:var(--accent);margin-bottom:6px}
+.tok{position:relative;cursor:help;border-bottom:1px dotted var(--muted);display:inline-block;margin:3px 0}
+.tok:hover::after{content:attr(data-tip);position:absolute;left:0;top:120%;width:240px;background:#082a1a;color:var(--ink);border:1px solid var(--accent);padding:8px 10px;border-radius:8px;font-size:13px;line-height:1.35;z-index:10;font-weight:400}
+.tok.tipleft:hover::after{left:auto;right:0}
+.htip{position:relative;cursor:help;border-bottom:1px dotted var(--muted)}
+.tipbox{display:none;position:absolute;left:0;top:120%;width:250px;background:#082a1a;color:var(--ink);border:1px solid var(--accent);padding:10px;border-radius:10px;z-index:10;font-weight:400;font-size:13px;line-height:1.35;text-align:left}
+.htip:hover .tipbox{display:block}
+.htip.tipleft .tipbox{left:auto;right:0}
+.tipcards{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.tipcards .mini{width:28px;height:38px;border-radius:4px}
+.tipcards .mini .mr{font-size:11px}
+.tipcards .mini .ms{font-size:14px}
+.tipcards .mini.jokercard svg{width:18px;height:18px}
+#overlay{position:fixed;inset:0;background:rgba(4,22,13,.82);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:var(--panel);border:3px solid #8b5a2b;box-shadow:inset 0 0 0 2px #e8c35a55,0 10px 40px #000a;border-radius:16px;padding:20px;width:min(640px,100%);max-height:90vh;overflow:auto;box-shadow:0 10px 40px #000a}
+.pop{position:fixed;transform:translate(-50%,0);font-weight:900;font-size:24px;color:#ffd24a;text-shadow:0 2px 6px #000;pointer-events:none;z-index:70;animation:popup 1.3s ease-out forwards;white-space:nowrap}
+@keyframes popup{0%{opacity:0;transform:translate(-50%,0) scale(.6)}15%{opacity:1;transform:translate(-50%,-8px) scale(1.1)}100%{opacity:0;transform:translate(-50%,-70px) scale(1)}}
+</style>
+</head>
+<body>
+<div class="head"><div><h1>SOLATRO</h1><div class="muted">Solo poker survival.</div></div><div class="hdrbtns"><button id="soundBtn" class="btn ghost iconbtn" onclick="toggleSound()"></button><div class="menu"><button class="btn ghost" onclick="toggleMenu()">☰ Menu</button><div class="menuList" id="menuList"><button onclick="menuDo(openTutorial)">How to play</button><button onclick="menuDo(restart)">New run</button></div></div></div></div>
+<div id="tutorial"></div>
+<div class="wrap">
+  <main class="panel" id="main"></main>
+  <aside class="panel" id="sheet"></aside>
+</div>
+
+<script>
+// ---------- Constants ----------
+const STEP = 50;                       // round target = STEP x round
+const targetFor = r => STEP * r;
+const SAVE_KEY = 'solatro-run';
+
+const SUIT = ['♠','♥','♦','♣'];
+const LABEL = {11:'J',12:'Q',13:'K',14:'A'};
+const HAND = {200:'Five of a Kind',150:'Royal Flush',125:'Straight Flush',100:'Four of a Kind',60:'Full House',50:'Flush',40:'Straight',30:'Three of a Kind',20:'Two Pair',10:'Pair',5:'High Card'};
+const HAND_LIST = [200,150,125,100,60,50,40,30,20,10,5];
+const HAND_TIP = {
+  200:'Four cards of the same rank plus the Joker as a wildcard.',
+  150:'Ace, King, Queen, Jack and 10, all in the same suit.',
+  125:'Five cards in sequence, all in the same suit.',
+  100:'Four cards of the same rank.',
+  60:'Three cards of one rank plus two cards of another rank.',
+  50:'Five cards, all in the same suit.',
+  40:'Five cards in sequence, mixed suits. Ace can be high or low.',
+  30:'Three cards of the same rank.',
+  20:'Two different pairs.',
+  10:'Two cards of the same rank.',
+  5:"Any cards that don't make a better hand."
+};
+const HAND_EX = {
+  200:[[13,0],[13,1],[13,2],[13,3],'J'],
+  150:[[10,1],[11,1],[12,1],[13,1],[14,1]],
+  125:[[5,3],[6,3],[7,3],[8,3],[9,3]],
+  100:[[9,0],[9,1],[9,2],[9,3]],
+  60:[[12,0],[12,1],[12,2],[4,3],[4,1]],
+  50:[[2,2],[5,2],[8,2],[11,2],[13,2]],
+  40:[[4,0],[5,1],[6,2],[7,3],[8,0]],
+  30:[[6,0],[6,1],[6,2]],
+  20:[[11,0],[11,1],[3,2],[3,3]],
+  10:[[8,0],[8,1]],
+  5:[[14,0],[13,1],[7,2],[4,3],[2,0]]
+};
+const ITEMS = [
+  {key:'card',    name:'Extra Card',    cost:10,  desc:'+1 card in hand each round', tip:'Hand limit +1 each round. Your 9th card shows in slot 5 of row one. Resets each shop.'},
+  {key:'discard', name:'Extra Discard', cost:25,  desc:'+1 discard each round', tip:'Start each round with 4 discards instead of 3. Resets each shop.'},
+  {key:'pocket',  name:'Pocket Points', cost:50,  desc:'+25 points at round start', tip:'+25 points at the start of each round for each one owned. Kept between shops. Each purchase costs 50 more than the last.'},
+  {key:'hand',    name:'Extra Hand',    cost:75,  desc:'+1 Hand each round', tip:'Start each round with 4 Hands instead of 3. Resets each shop.'},
+  {key:'double',  name:'Double Score',  cost:100, desc:'Double one played hand', tip:'Toggle it on before playing to double that hand. Used once per round, only when the hand is played. Resets each shop.'},
+  {key:'shield',  name:'Shield',        cost:150, desc:'Saves one failed round', tip:'Automatically saves one failed round, then is used up. Kept between shops.'}
+];
+
+// ---------- Cards ----------
+const ALL = [];
+for (let s = 0; s < 4; s++) for (let r = 2; r <= 14; r++) ALL.push({id: ALL.length, rank: r, suit: s});
+ALL.push({id: ALL.length, joker: true});
+ALL.push({id: ALL.length, joker: true});
+const REPL = [];
+for (let s = 0; s < 4; s++) for (let r = 2; r <= 14; r++) REPL.push({rank: r, suit: s});
+
+function cardValue(c){
+  if (c.rank === 14) return 11;
+  if (c.rank >= 11) return 10;
+  return c.rank;
+}
+
+function shuffle(a){
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---------- State ----------
+function fresh(){
+  return {
+    round: 1, survived: 0, bonus: 0, owned: [],
+    deck: [], hand: [], discard: [], banked: null,
+    plays: 3, discards: 3, limit: 8, score: 0,
+    doubleOn: false, used: [], selected: [], useJoker: false,
+    phase: 'play', msg: '', sort: 'rank', flash: null,
+    lastResult: null, sound: true, cart: {},
+    stats: {bestHand: null, bestPlay: 0, handsPlayed: 0, bought: []}
+  };
+}
+let S = fresh();
+let PLAY = null;   // best scoring play for the current selection (recomputed each render)
+const FX = {score: null, confetti: false};
+
+// ---------- Hand scoring ----------
+function scoreCards(cs){
+  const n = cs.length;
+  const cnt = {};
+  cs.forEach(c => cnt[c.rank] = (cnt[c.rank] || 0) + 1);
+  const g = Object.values(cnt).sort((a, b) => b - a);
+  const ranks = cs.map(c => c.rank).sort((a, b) => a - b);
+  const flush = n === 5 && cs.every(c => c.suit === cs[0].suit);
+  const straight = n === 5 && g.length === 5 && (ranks[4] - ranks[0] === 4 || ranks.join() === '2,3,4,5,14');
+  let p = 5;
+  if (g[0] >= 2) p = 10;
+  if (g[0] >= 2 && (g[1] || 0) >= 2) p = 20;
+  if (g[0] >= 3) p = 30;
+  if (straight) p = Math.max(p, 40);
+  if (flush) p = Math.max(p, 50);
+  if (g[0] >= 3 && (g[1] || 0) >= 2) p = Math.max(p, 60);
+  if (g[0] >= 4) p = Math.max(p, 100);
+  if (g[0] >= 5) p = Math.max(p, 200); // only reachable with the Joker as a wildcard
+  if (straight && flush) p = Math.max(p, (ranks[0] === 10 && ranks[4] === 14) ? 150 : 125);
+  return p;
+}
+
+// Which cards actually make the hand. Only these add their value to the score.
+function matchedCards(cs, pts){
+  if ([125, 150, 40, 50, 60, 200].includes(pts)) return cs;          // all five cards make the hand
+  if (pts === 5) return [cs.reduce((a, b) => b.rank > a.rank ? b : a)]; // High Card: highest card only
+  const groups = {};
+  cs.forEach(c => (groups[c.rank] = groups[c.rank] || []).push(c));
+  const list = Object.values(groups);
+  if (pts === 100) return list.find(g => g.length >= 4) || [];
+  if (pts === 30) return list.find(g => g.length >= 3) || [];
+  if (pts === 20) return list.filter(g => g.length >= 2).flat();      // both pairs
+  if (pts === 10) return list.find(g => g.length >= 2) || [];        // the one pair
+  return cs;
+}
+
+// Tries every subset of the selected cards (with the Joker optionally as a wildcard)
+// and keeps the one with the highest total: hand points plus the value of the matching cards.
+function bestPlay(sel, wild){
+  const best = {total: 0, pts: 0, name: null, ids: new Set(), joker: false, size: 0};
+  const n = sel.length;
+  for (let mask = 0; mask < (1 << n); mask++){
+    const base = sel.filter((_, i) => mask & (1 << i));
+    for (const w of (wild ? [false, true] : [false])){
+      const size = base.length + (w ? 1 : 0);
+      if (size === 0) continue;
+      const reps = w ? REPL : [null];
+      for (const rep of reps){
+        const cs = rep ? [...base, rep] : base;
+        const pts = scoreCards(cs);
+        const m = matchedCards(cs, pts);
+        const total = pts + m.reduce((a, c) => a + (c === rep ? 0 : cardValue(c)), 0);
+        if (total > best.total || (total === best.total && size < best.size)){
+          Object.assign(best, {
+            total, pts, name: HAND[pts], size,
+            ids: new Set(m.filter(c => c.id !== undefined).map(c => c.id)),
+            joker: !!rep && m.includes(rep)
+          });
+        }
+      }
+    }
+  }
+  return best;
+}
+
+function selection(){
+  return {sel: S.hand.filter(c => S.selected.includes(c.id)), wild: S.useJoker && !!S.banked};
+}
+
+function currentPlay(){
+  const {sel, wild} = selection();
+  if (!sel.length && !wild) return null;
+  return bestPlay(sel, wild);
+}
+
+// ---------- Sound (generated in the browser, no files) ----------
+let audio = null;
+function tone(freq, dur = 0.15, type = 'sine', vol = 0.12, when = 0){
+  if (!S.sound) return;
+  try{
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const t = audio.currentTime + when;
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(audio.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  }catch(e){}
+}
+const SFX = {
+  play(){ tone(523, .12, 'triangle'); tone(659, .14, 'triangle', .12, .08); },
+  discard(){ tone(220, .08, 'square', .05); },
+  bank(){ tone(880, .12, 'sine'); tone(1320, .18, 'sine', .1, .1); },
+  lost(){ tone(180, .35, 'sawtooth', .08); },
+  black(){ tone(120, .5, 'sawtooth', .1); tone(90, .5, 'square', .08, .15); },
+  win(){ [523, 659, 784, 1046].forEach((f, i) => tone(f, .25, 'triangle', .12, i * .1)); },
+  lose(){ [392, 330, 262, 196].forEach((f, i) => tone(f, .3, 'sawtooth', .08, i * .18)); }
+};
+
+// ---------- Flash banners ----------
+function setFlash(text, kind){
+  S.flash = {text, kind};
+  if (kind === 'gold') SFX.bank();
+  else if (kind === 'red') SFX.lost();
+  else if (kind === 'black') SFX.black();
+}
+
+// ---------- Deck / hand ----------
+function drawTo(n, opening = false){
+  let bankedNow = false; // a Joker was banked during this same draw
+  while (S.hand.length < n){
+    if (!S.deck.length){
+      if (!S.discard.length) break;
+      S.deck = shuffle(S.discard);
+      S.discard = [];
+    }
+    const c = S.deck.pop();
+    if (c.joker){
+      if (S.banked){
+        const atOnce = bankedNow || opening;
+        S.discard.push(c, S.banked);
+        S.banked = null;
+        if (atOnce) setFlash('Both Jokers drawn at once. Both lost!', 'black');
+        else setFlash('Banked Joker lost!', 'red');
+      } else {
+        S.banked = c;
+        bankedNow = true;
+        setFlash('Joker banked! Use it as a wildcard in a future play.', 'gold');
+      }
+    } else {
+      S.hand.push(c);
+    }
+  }
+}
+
+function startRound(){
+  const has = k => S.owned.includes(k);
+  const count = k => S.owned.filter(x => x === k).length;
+  // Everything returns to the deck each round; a banked Joker stays banked
+  S.deck = shuffle(ALL.filter(c => c !== S.banked));
+  S.hand = [];
+  S.discard = [];
+  S.plays = has('hand') ? 4 : 3;
+  S.discards = has('discard') ? 4 : 3;
+  S.limit = has('card') ? 9 : 8;
+  S.score = 25 * count('pocket');
+  S.doubleOn = false;
+  S.used = [];
+  S.selected = [];
+  S.useJoker = false;
+  S.phase = 'play';
+  S.msg = `Round ${S.round}: reach ${targetFor(S.round)} points.`;
+  drawTo(S.limit, true);
+}
+
+// ---------- Actions ----------
+function toggleCard(id){
+  if (S.phase !== 'play') return;
+  const i = S.selected.indexOf(id);
+  if (i >= 0) S.selected.splice(i, 1);
+  else if (S.selected.length + (S.useJoker ? 1 : 0) >= 5) { /* max 5 cards per play */ }
+  else S.selected.push(id);
+  render();
+}
+
+function clearSel(){
+  S.selected = [];
+  S.useJoker = false;
+  render();
+}
+
+function toggleJoker(){
+  if (!S.banked || S.phase !== 'play') return;
+  if (!S.useJoker && S.selected.length >= 5) return;
+  S.useJoker = !S.useJoker;
+  render();
+}
+
+function toggleDouble(){
+  if (S.phase !== 'play' || !S.owned.includes('double') || S.used.includes('double')) return;
+  S.doubleOn = !S.doubleOn;
+  render();
+}
+
+function playHand(){
+  if (S.phase !== 'play' || S.plays <= 0) return;
+  const {sel, wild} = selection();
+  if (!sel.length && !wild) return;
+  const play = bestPlay(sel, wild);
+  const doubled = S.doubleOn && S.owned.includes('double') && !S.used.includes('double');
+  const total = doubled ? play.total * 2 : play.total;
+  if (doubled){ S.used.push('double'); S.doubleOn = false; }
+
+  const prev = S.score;
+  S.score += total;
+  S.plays--;
+  S.stats.handsPlayed++;
+  if (total > S.stats.bestPlay){ S.stats.bestPlay = total; S.stats.bestHand = play.name; }
+
+  // Played cards go to the discard pile; a used Joker is discarded too
+  S.hand = S.hand.filter(c => !S.selected.includes(c.id));
+  S.discard.push(...sel);
+  if (wild){ S.discard.push(S.banked); S.banked = null; }
+  S.selected = [];
+  S.useJoker = false;
+  S.flash = null; // Joker banners last until the next hand is played
+
+  FX.score = {prev, total, name: play.name, doubled};
+  SFX.play();
+  drawTo(S.limit);
+  if (S.plays === 0) endRound();
+  render();
+}
+
+function discardSel(){
+  if (S.phase !== 'play' || S.discards <= 0) return;
+  const cards = S.hand.filter(c => S.selected.includes(c.id));
+  if (!cards.length) return;
+  S.discard.push(...cards);
+  S.hand = S.hand.filter(c => !S.selected.includes(c.id));
+  S.discards--;
+  S.selected = [];
+  SFX.discard();
+  drawTo(S.limit);
+  render();
+}
+
+function endRound(){
+  const target = targetFor(S.round);
+  if (S.score >= target){
+    S.survived = S.round;
+    S.bonus = S.score - target;
+    S.phase = 'shop';
+    S.lastResult = 'cleared';
+    S.owned = S.owned.filter(k => k === 'pocket' || k === 'shield'); // tokens reset each shop
+    SFX.win();
+  } else if (S.owned.includes('shield')){
+    S.owned = S.owned.filter(k => k === 'pocket'); // Shield is used up by saving the round
+    S.survived = S.round;
+    S.bonus = 0;
+    S.phase = 'shop';
+    S.lastResult = 'shield';
+    SFX.lose();
+  } else {
+    S.phase = 'over';
+    S.lastResult = null;
+    SFX.lose();
+  }
+}
+
+function itemCost(i){
+  return i.key === 'pocket' ? 50 * (S.owned.filter(k => k === 'pocket').length + 1) : i.cost;
+}
+
+function buy(key){
+  const item = ITEMS.find(i => i.key === key);
+  if (key !== 'pocket' && S.owned.includes(key)) return render();
+  const cost = itemCost(item);
+  if (S.bonus < cost) return render();
+  S.bonus -= cost;
+  S.owned.push(key);
+  S.stats.bought.push(item.name);
+  render();
+}
+
+function nextRound(){
+  S.round++;
+  S.bonus = 0; // points don't carry over
+  S.cart = {};
+  startRound();
+  render();
+}
+
+function restart(){
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  const snd = S.sound;
+  S = fresh();
+  S.sound = snd;
+  startRound();
+  render();
+}
+
+function toggleSound(){ S.sound = !S.sound; render(); }
+function setSort(m){ S.sort = m; render(); }
+function openPile(w){ S.pileView = w; render(); }
+function closePile(){ S.pileView = null; render(); }
+
+// ---------- Save / load ----------
+function saveRun(){
+  try{
+    if (S.phase === 'over'){ localStorage.removeItem(SAVE_KEY); return; }
+    const st = {
+      ...S,
+      deck: S.deck.map(c => c.id),
+      hand: S.hand.map(c => c.id),
+      discard: S.discard.map(c => c.id),
+      banked: S.banked ? S.banked.id : null,
+      pileView: null
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(st));
+  }catch(e){}
+}
+
+function loadRun(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const st = JSON.parse(raw);
+    st.deck = st.deck.map(id => ALL[id]);
+    st.hand = st.hand.map(id => ALL[id]);
+    st.discard = st.discard.map(id => ALL[id]);
+    st.banked = st.banked === null ? null : ALL[st.banked];
+    st.pileView = null;
+    S = Object.assign(fresh(), st);
+    return true;
+  }catch(e){ return false; }
+}
+
+// ---------- Markup helpers ----------
+function miniHTML(c, dim){
+  return `<div class="mini suit-${c.suit}${dim ? ' dim' : ''}"><div class="mr">${LABEL[c.rank] || c.rank}</div><div class="ms">${SUIT[c.suit]}</div></div>`;
+}
+
+function miniJokerHTML(dim){
+  return `<div class="mini jokercard${dim ? ' dim' : ''}"><svg viewBox="0 0 64 64"><path d="M12 44 L6 22 L20 32 L32 10 L44 32 L58 22 L52 44 Z" fill="#6a2bb0"/><rect x="12" y="44" width="40" height="8" rx="3" fill="#f2b84b"/><circle cx="6" cy="22" r="4" fill="#f2b84b"/><circle cx="32" cy="10" r="4" fill="#f2b84b"/><circle cx="58" cy="22" r="4" fill="#f2b84b"/></svg></div>`;
+}
+
+function cardHTML(c){
+  const sel = S.selected.includes(c.id);
+  const sc = PLAY && PLAY.ids.has(c.id);
+  return `<button class="card suit-${c.suit} ${sel ? 'sel' : ''} ${sc ? 'scoring' : ''}" onclick="toggleCard(${c.id})">
+    <div class="rk">${LABEL[c.rank] || c.rank}</div>
+    <div class="big">${SUIT[c.suit]}</div>
+  </button>`;
+}
+
+function jokerHTML(){
+  const sc = PLAY && PLAY.joker;
+  return `<button class="card jokercard ${S.useJoker ? 'sel' : ''} ${sc ? 'scoring' : ''}" onclick="toggleJoker()">
+    <div class="rk">JK</div>
+    <div class="big"><svg viewBox="0 0 64 64" width="56" height="56"><path d="M12 44 L6 22 L20 32 L32 10 L44 32 L58 22 L52 44 Z" fill="#6a2bb0"/><rect x="12" y="44" width="40" height="8" rx="3" fill="#f2b84b"/><circle cx="6" cy="22" r="4" fill="#f2b84b"/><circle cx="32" cy="10" r="4" fill="#f2b84b"/><circle cx="58" cy="22" r="4" fill="#f2b84b"/></svg></div>
+  </button>`;
+}
+
+function tokensHTML(){
+  if (!S.owned.length) return '<span class="muted">None</span>';
+  return [...new Set(S.owned)].map(k => {
+    const it = ITEMS.find(i => i.key === k);
+    const n = S.owned.filter(x => x === k).length;
+    return `<div><span class="tok" data-tip="${it.tip}">${it.name}${n > 1 ? ` ×${n}` : ''}</span></div>`;
+  }).join('');
+}
+
+// ---------- Screens ----------
+function playHTML(target){
+  const pct = Math.min(100, S.score / target * 100);
+  const over = S.score > target;
+  const barInner = over
+    ? `<div class="split"><div class="seg1" style="flex:${target} 1 0">Score: ${target}/${target}</div><div class="seg2" style="flex:${S.score - target} 1 0">+${S.score - target} Bonus</div></div>`
+    : `<span style="width:${pct}%"></span><div class="progtxt"><span>Score <span id="scoreNum">${S.score}</span> / ${target}</span></div>`;
+
+  const sorted = [...S.hand].sort(S.sort === 'suit'
+    ? (a, b) => a.suit - b.suit || b.rank - a.rank
+    : (a, b) => b.rank - a.rank || a.suit - b.suit);
+  // Row one holds 4 cards (5 with Extra Card). Row two holds the rest plus the banked Joker in slot 5.
+  const cut = S.owned.includes('card') ? 5 : 4;
+  const row1 = sorted.slice(0, cut).map(cardHTML).join('');
+  const row2 = sorted.slice(cut).map(cardHTML).join('') + (S.banked ? jokerHTML() : '');
+  const hand = `<div class="handrow">${row1}</div>${row2 ? `<div class="handrow">${row2}</div>` : ''}`;
+
+  const sortToggle = `<div class="handhdr"><div class="seg"><button class="${S.sort === 'rank' ? 'on' : ''}" onclick="setSort('rank')">Rank</button><button class="${S.sort === 'suit' ? 'on' : ''}" onclick="setSort('suit')">Suit</button></div><button class="btn ghost clearbtn" ${S.selected.length || S.useJoker ? '' : 'disabled'} onclick="clearSel()">Clear</button></div>`;
+
+  const flash = S.flash ? `<div class="flash ${S.flash.kind}">${S.flash.text}</div>` : '';
+  const shield = S.owned.includes('shield') ? `<div class="shieldbadge">🛡️ SHIELD ACTIVE · saves your next failed round</div>` : '';
+
+  let dbl = '';
+  if (S.owned.includes('double')){
+    if (S.used.includes('double')) dbl = `<div class="muted" style="text-align:center">Double Score used this round.</div>`;
+    else dbl = `<div class="row"><button class="tokbtn ${S.doubleOn ? 'glow' : ''}" onclick="toggleDouble()" ${S.phase !== 'play' ? 'disabled' : ''}>Double Score${S.doubleOn ? ' · ON' : ''}</button></div>`;
+  }
+
+  const piles = `<div class="piles"><button class="pile" onclick="openPile('deck')">Deck <b>${S.deck.length}</b></button><button class="pile" onclick="openPile('discard')">Discard <b>${S.discard.length}</b></button></div>`;
+
+  // Mobile-style preview: selected cards (dimmed if not scoring) and the hand they make
+  const selCards = sorted.filter(c => S.selected.includes(c.id));
+  const minis = [
+    ...selCards.map(c => miniHTML(c, !(PLAY && PLAY.ids.has(c.id)))),
+    ...(S.useJoker && S.banked ? [miniJokerHTML(!(PLAY && PLAY.joker))] : [])
+  ].join('');
+  const pvText = PLAY
+    ? `${PLAY.name} · ${PLAY.pts} + ${PLAY.total - PLAY.pts} = ${PLAY.total}${S.doubleOn ? ` × 2 = ${PLAY.total * 2}` : ''} pts`
+    : '';
+  const previewHTML = `<div class="preview ${S.doubleOn ? 'dbl' : ''}"><div class="pvcards">${minis || '<span class="muted">Select cards to preview your hand</span>'}</div>${PLAY ? `<div class="pvname">${pvText}</div>` : ''}</div>`;
+
+  const selCount = S.selected.length;
+  const canPlay = S.plays > 0 && (selCount + (S.useJoker && S.banked ? 1 : 0)) > 0;
+  const canDiscard = S.discards > 0 && selCount > 0;
+
+  return `
+    ${flash}
+    ${shield}
+    <h2>Round ${S.round}</h2>
+    <div class="prog">${barInner}</div>
+    ${previewHTML}
+    <div class="handwrap">${sortToggle}<div class="hand">${hand || '<span class="muted">Hand empty</span>'}</div></div>
+    ${dbl}
+    ${piles}
+    <div class="counters">
+      <button class="counter" ${canPlay ? '' : 'disabled'} onclick="playHand()">
+        <div class="num">${S.plays}</div><div class="lbl">Hands left</div><div class="hint">Tap to play selected</div>
+      </button>
+      <button class="counter disc" ${canDiscard ? '' : 'disabled'} onclick="discardSel()">
+        <div class="num">${S.discards}</div><div class="lbl">Discards left</div><div class="hint">Tap to discard selected</div>
+      </button>
+    </div>
+`;
+}
+
+function cartQty(k){ return S.cart[k] || 0; }
+function cartLineCost(it){
+  const q = cartQty(it.key);
+  if (it.key !== 'pocket') return it.cost * q;
+  const own = S.owned.filter(k => k === 'pocket').length;
+  let sum = 0;
+  for (let j = 0; j < q; j++) sum += 50 * (own + j + 1);
+  return sum;
+}
+function cartCost(){ return ITEMS.reduce((a, it) => a + cartLineCost(it), 0); }
+function cartAdj(k, d){
+  const it = ITEMS.find(i => i.key === k);
+  if (k === 'pocket'){
+    const q = cartQty(k) + d;
+    if (q < 0) return render();
+    if (d > 0){
+      const own = S.owned.filter(x => x === 'pocket').length;
+      if (cartCost() + 50 * (own + cartQty(k) + 1) > S.bonus) return render();
+    }
+    S.cart[k] = q;
+  } else if (d > 0){
+    if (S.owned.includes(k) || cartCost() + it.cost > S.bonus) return render();
+    S.cart[k] = 1;
+  } else {
+    delete S.cart[k];
+  }
+  render();
+}
+function cartClear(){ S.cart = {}; render(); }
+function confirmCart(){
+  const total = cartCost();
+  if (!total || total > S.bonus) return render();
+  for (const it of ITEMS){
+    const q = cartQty(it.key);
+    for (let j = 0; j < q; j++){
+      S.bonus -= itemCost(it);
+      S.owned.push(it.key);
+      S.stats.bought.push(it.name);
+    }
+  }
+  S.cart = {};
+  S.msg = '';
+  render();
+}
+
+function shopHTML(){
+  const total = cartCost();
+  const left = S.bonus - total;
+  const own = S.owned.filter(k => k === 'pocket').length;
+  const rows = ITEMS.map(i => {
+    const q = cartQty(i.key);
+    let price, ctl;
+    if (i.key === 'pocket'){
+      price = 50 * (own + q + 1);
+      ctl = `<div class="qty"><button class="btn ghost" ${q ? '' : 'disabled'} onclick="cartAdj('pocket',-1)">−</button><span class="qn">${q}</span><button class="btn" ${total + price > S.bonus ? 'disabled' : ''} onclick="cartAdj('pocket',1)">+</button></div>`;
+    } else {
+      price = i.cost;
+      const owned = S.owned.includes(i.key);
+      if (owned) ctl = '<span class="muted">Owned</span>';
+      else if (q) ctl = `<button class="btn ghost" onclick="cartAdj('${i.key}',-1)">In cart ✓</button>`;
+      else ctl = `<button class="btn" ${total + price > S.bonus ? 'disabled' : ''} onclick="cartAdj('${i.key}',1)">Add</button>`;
+    }
+    return `<div class="item">
+      <div class="iname">${i.name} <span class="icost">${price}</span></div>
+      <div class="idesc">${i.desc}</div>
+      <div class="ictl">${ctl}</div>
+    </div>`;
+  }).join('');
+  const lines = ITEMS.filter(i => cartQty(i.key) > 0)
+    .map(i => `<div class="cline"><span>${i.name}${i.key === 'pocket' ? ` ×${cartQty(i.key)}` : ''}</span><span>${cartLineCost(i)}</span></div>`)
+    .join('') || '<div class="muted">Cart is empty</div>';
+  return `
+    <div class="clearhdr">${S.lastResult === 'shield' ? 'Shield saved you!' : `Round ${S.round} cleared!`}</div>
+    <p>Bonus points to spend: <b>${S.bonus}</b>. Use'em or lose'em</p>
+    <p class="muted">Extra Card, Extra Discard, Extra Hand and Double Score reset each shop. Shield and Pocket Points carry over.</p>
+    ${rows}
+    <div class="cart">
+      <h3>Cart</h3>
+      ${lines}
+      <div class="ctotal"><span>Total</span><b>${total}</b></div>
+      <div class="muted">Left after purchase: ${left}</div>
+      <div class="row">
+        <button class="btn ghost" ${total ? '' : 'disabled'} onclick="cartClear()">Clear cart</button>
+        <button class="btn" ${total && left >= 0 ? '' : 'disabled'} onclick="confirmCart()">Confirm purchase</button>
+      </div>
+    </div>
+    <div class="row"><button class="btn ghost" onclick="nextRound()">Next round (target ${targetFor(S.round + 1)})</button></div>`;
+}
+
+function overHTML(){
+  const st = S.stats;
+  const counts = {};
+  st.bought.forEach(n => counts[n] = (counts[n] || 0) + 1);
+  const handKey = Object.keys(HAND).find(k => HAND[k] === st.bestHand);
+  const bestCell = st.bestHand
+    ? `<span class="htip tipleft">${st.bestHand}<span class="tipbox"><span class="tipdesc">${HAND_TIP[handKey]}</span><span class="tipcards">${tipCardsHTML(Number(handKey))}</span></span></span> (${st.bestPlay} pts)`
+    : '—';
+  const boughtRows = Object.keys(counts).length
+    ? Object.entries(counts).map(([n, k]) => {
+        const it = ITEMS.find(i => i.name === n);
+        return `<tr><td><span class="tok" data-tip="${it.tip}">${n}</span></td><td style="text-align:right">×${k}</td></tr>`;
+      }).join('')
+    : '<tr><td colspan="2">None</td></tr>';
+  return `
+    <h2>Run over</h2>
+    <p>You fell short in round ${S.round}: ${S.score}/${targetFor(S.round)}.</p>
+    <table class="sum">
+      <tr><td>Rounds survived</td><td style="text-align:right"><b>${S.survived}</b></td></tr>
+      <tr><td>Best hand</td><td style="text-align:right">${bestCell}</td></tr>
+      <tr><td>Hands played</td><td style="text-align:right">${st.handsPlayed}</td></tr>
+      <tr><td colspan="2" class="muted" style="padding-top:12px">Bonuses bought (times purchased)</td></tr>
+      ${boughtRows}
+    </table>
+    <div class="row"><button class="btn" onclick="restart()">Play again</button></div>`;
+}
+
+function pileHTML(){
+  const which = S.pileView;
+  const list = (which === 'deck' ? S.deck : S.discard).slice().sort((a, b) =>
+    (a.joker ? 99 : a.suit) - (b.joker ? 99 : b.suit) || (a.rank || 0) - (b.rank || 0));
+  const body = list.length
+    ? list.map(c => c.joker ? miniJokerHTML(false) : miniHTML(c, false)).join('')
+    : '<span class="muted">Empty</span>';
+  return `
+    <h2>${which === 'deck' ? 'Draw pile' : 'Discard pile'} · ${list.length}</h2>
+    <p class="muted">${which === 'deck' ? 'Sorted for display. The real draw order is hidden.' : 'Discarded and Played cards are displayed here and are shuffled back into the deck at Round End.'}</p>
+    <div class="pilegrid">${body}</div>
+    <div class="row"><button class="btn" onclick="closePile()">Close</button></div>`;
+}
+
+function tipCardsHTML(p){
+  return HAND_EX[p].map(c => c === 'J' ? miniJokerHTML(false) : miniHTML({rank: c[0], suit: c[1]}, false)).join('');
+}
+
+function sheetHTML(){
+  const hl = PLAY ? PLAY.name : null;
+  const m = S.doubleOn ? 2 : 1;
+  return `
+    <p class="muted" style="margin:0 0 4px">Owned bonuses</p>
+    ${tokensHTML()}
+    <h3>Hands${S.doubleOn ? ' (×2)' : ''}</h3>
+    <div class="muted" style="font-size:13px;margin-bottom:6px">Plus the value of each scoring card</div>
+    <table class="hands">
+      ${HAND_LIST.map(p => `<tr class="${hl === HAND[p] ? 'on' : ''} ${S.doubleOn ? 'dbl' : ''}"><td><span class="htip">${HAND[p]}<span class="tipbox"><span class="tipdesc">${HAND_TIP[p]}</span><span class="tipcards">${tipCardsHTML(p)}</span></span></span></td><td class="pts" style="text-align:right">${p * m}</td></tr>`).join('')}
+    </table>
+`;
+}
+
+// ---------- Effects ----------
+function tweenScore(prev, next){
+  const el = document.getElementById('scoreNum');
+  if (!el) return;
+  const start = performance.now(), dur = 700;
+  el.textContent = prev;
+  const step = now => {
+    const t = Math.min(1, (now - start) / dur);
+    el.textContent = Math.round(prev + (next - prev) * t);
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function popScore(text){
+  const bar = document.querySelector('.prog');
+  if (!bar) return;
+  const r = bar.getBoundingClientRect();
+  const d = document.createElement('div');
+  d.className = 'pop';
+  d.textContent = text;
+  d.style.left = (r.left + r.width / 2) + 'px';
+  d.style.top = (r.top - 6) + 'px';
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 1400);
+}
+
+// ---------- Render ----------
+function render(){
+  const target = targetFor(S.round);
+  PLAY = S.phase === 'play' ? currentPlay() : null;
+  document.getElementById('main').innerHTML = playHTML(target);
+  document.getElementById('sheet').innerHTML = sheetHTML();
+
+  let modal = '';
+  if (S.phase === 'shop') modal = shopHTML();
+  else if (S.phase === 'over') modal = overHTML();
+  else if (S.pileView) modal = pileHTML();
+
+  let ov = document.getElementById('overlay');
+  if (!ov){
+    ov = document.createElement('div');
+    ov.id = 'overlay';
+    ov.onclick = e => { if (e.target === ov && S.pileView) closePile(); };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = modal ? `<div class="modal">${modal}</div>` : '';
+  ov.style.display = modal ? 'flex' : 'none';
+
+  if (FX.score){
+    const f = FX.score;
+    FX.score = null;
+    tweenScore(f.prev, S.score);
+    popScore(`${f.name} +${f.total}${f.doubled ? ' ×2' : ''}`);
+  }
+  const sb = document.getElementById('soundBtn');
+  if (sb){ sb.innerHTML = soundIcon(S.sound); sb.title = S.sound ? 'Sound on' : 'Sound muted'; sb.setAttribute('aria-label', sb.title); }
+  saveRun();
+}
+
+// ---------- Menu ----------
+function soundIcon(on){
+  const speaker = '<path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/>';
+  const waves = '<path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>';
+  const strike = '<path d="M3 3l18 18"/>';
+  return `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">${speaker}${on ? waves : strike}</svg>`;
+}
+function toggleMenu(){ document.getElementById('menuList').classList.toggle('open'); }
+function menuDo(fn){ document.getElementById('menuList').classList.remove('open'); fn(); }
+
+// ---------- Tutorial ----------
+const TUT_KEY = 'solatro-tutorial-seen';
+let TUT = 0;
+const TUT_STEPS = [
+  {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. Points above the target become bonus points for the shop.',
+   stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Score 35 / 50</div></div>'},
+  {title: 'Select cards', text: 'Tap cards to select up to 5. Selected cards lift and get a gold border. Your choices are what you can play or discard.',
+   stage: '<div class="tut-row"><div class="mini suit-0"><div class="mr">4</div><div class="ms">♠</div></div><div class="mini suit-1 tut-pick"><div class="mr">K</div><div class="ms">♥</div></div><div class="mini suit-2"><div class="mr">7</div><div class="ms">♦</div></div><div class="mini suit-3"><div class="mr">7</div><div class="ms">♣</div></div></div>'},
+  {title: 'Hands and discards', text: 'Tap Hands left to play your selection. Tap Discards left to throw out the selected cards and draw replacements. You get 3 of each per round.',
+   stage: '<div class="tut-counters"><div class="counter tut-glow"><div class="num">3</div><div class="lbl">Hands left</div></div><div class="counter disc tut-glow2"><div class="num">3</div><div class="lbl">Discards left</div></div></div>'},
+  {title: 'Scoring', text: 'Only cards that make the hand add their value. A Pair of 7s scores 10 for the pair plus 7 + 7, for 24 points. Unrelated cards add nothing.',
+   stage: '<div class="tut-row"><div class="mini suit-1 tut-score"><div class="mr">7</div><div class="ms">♥</div></div><div class="mini suit-0 tut-score" style="animation-delay:.3s"><div class="mr">7</div><div class="ms">♠</div></div><div class="mini suit-2 dim"><div class="mr">2</div><div class="ms">♦</div></div><div class="tut-pop">Pair +24</div></div>'},
+  {title: 'Bonus Shop', text: 'Clear a round and the extra points become bonus points. Spend them in the Bonus Shop. Points you do not spend are lost.',
+   stage: '<div class="tut-shop"><div class="tut-bonus">+40 Bonus</div><div class="tut-item">Pocket Points · 50</div></div>'},
+  {title: 'Jokers', text: 'A Joker is a wildcard worth 0 points. Drawing one banks it for later. Drawing a second Joker while one is banked loses both.',
+   stage: '<div class="tut-stack"><div class="flash gold tut-f1">Joker banked! Use it as a wildcard.</div><div class="flash red tut-f2">Banked Joker lost!</div></div>'}
+];
+
+function tutorialHTML(){
+  const s = TUT_STEPS[TUT];
+  const last = TUT === TUT_STEPS.length - 1;
+  const dots = TUT_STEPS.map((_, i) => `<span class="tut-dot ${i === TUT ? 'on' : ''}"></span>`).join('');
+  return `<div class="modal tut-modal">
+    <div class="muted">How to play · ${TUT + 1} / ${TUT_STEPS.length}</div>
+    <h2>${s.title}</h2>
+    <div class="tut-stage">${s.stage}</div>
+    <p>${s.text}</p>
+    <div class="tut-dots">${dots}</div>
+    <div class="row">
+      <button class="btn ghost" ${TUT === 0 ? 'disabled' : ''} onclick="tutBack()">Back</button>
+      <button class="btn ghost" onclick="closeTut()">Skip tutorial</button>
+      <button class="btn" onclick="${last ? 'closeTut()' : 'tutNext()'}">${last ? 'Start playing' : 'Next'}</button>
+    </div>
+  </div>`;
+}
+function showTut(){
+  const el = document.getElementById('tutorial');
+  el.innerHTML = tutorialHTML();
+  el.style.display = 'flex';
+}
+function openTutorial(){ TUT = 0; showTut(); }
+function tutNext(){ if (TUT < TUT_STEPS.length - 1){ TUT++; showTut(); } }
+function tutBack(){ if (TUT > 0){ TUT--; showTut(); } }
+function closeTut(){
+  try{ localStorage.setItem(TUT_KEY, '1'); }catch(e){}
+  document.getElementById('tutorial').style.display = 'none';
+}
+function tutSeen(){
+  try{ return !!localStorage.getItem(TUT_KEY); }catch(e){ return false; }
+}
+
+// ---------- Start ----------
+if (!loadRun()){
+  S = fresh();
+  startRound();
+}
+render();
+if (!tutSeen()) openTutorial();
+</script>
+</body>
+</html>
