@@ -702,9 +702,7 @@ function cartAdj(k, d){
   render();
 }
 function cartClear(){ S.cart = {}; render(); }
-function confirmCart(){
-  const total = cartCost();
-  if (!total || total > S.bonus) return render();
+function buyCart(){
   for (const it of ITEMS){
     const q = cartQty(it.key);
     for (let j = 0; j < q; j++){
@@ -714,8 +712,12 @@ function confirmCart(){
     }
   }
   S.cart = {};
-  S.msg = '';
-  render();
+}
+
+function confirmAndNext(){
+  if (cartCost() > S.bonus) return render();
+  buyCart();
+  nextRound();
 }
 
 function shopHTML(){
@@ -754,12 +756,9 @@ function shopHTML(){
       ${lines}
       <div class="ctotal"><span>Total</span><b>${total}</b></div>
       <div class="muted">Left after purchase: ${left}</div>
-      <div class="row">
-        <button class="btn ghost" ${total ? '' : 'disabled'} onclick="cartClear()">Clear cart</button>
-        <button class="btn" ${total && left >= 0 ? '' : 'disabled'} onclick="confirmCart()">Confirm purchase</button>
-      </div>
+      <div class="row"><button class="btn ghost" ${total ? '' : 'disabled'} onclick="cartClear()">Clear cart</button></div>
     </div>
-    <div class="row"><button class="btn ghost" onclick="nextRound()">Next round (target ${targetFor(S.round + 1)})</button></div>`;
+    <div class="row"><button class="btn" ${left >= 0 ? '' : 'disabled'} onclick="confirmAndNext()">${total ? 'Confirm purchase & start next round' : `Next round (target ${targetFor(S.round + 1)})`}</button></div>`;
 }
 
 function overHTML(){
