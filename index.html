@@ -34,6 +34,8 @@ h3{margin:18px 0 6px;font-size:22px}
 .tut-score{animation:tutScore 2s ease-in-out infinite}
 .tut-pop{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-weight:900;font-size:24px;color:#ffd24a;text-shadow:0 2px 6px #000;animation:tutPop 2.4s ease-out infinite;white-space:nowrap}
 .tut-shop{display:flex;align-items:center;gap:14px}
+.tut-ladder{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 10px}
+.tut-ladder span{padding:8px 10px;border-radius:8px;background:#14603a;border:2px solid #2c7a4d;font-weight:700;font-size:14px;animation:tutGlow 3.6s ease-in-out infinite}
 .tut-bonus{background:#e8c35a;color:#222;font-weight:900;padding:8px 14px;border-radius:10px;animation:tutSlide 2.4s ease-out infinite}
 .tut-item{background:#14603a;border:2px solid #2c7a4d;padding:10px 14px;border-radius:10px;font-weight:700}
 .tut-stack{position:relative;width:92%;height:64px}
@@ -758,7 +760,7 @@ function shopHTML(){
       <div class="muted">Left after purchase: ${left}</div>
       <div class="row"><button class="btn ghost" ${total ? '' : 'disabled'} onclick="cartClear()">Clear cart</button></div>
     </div>
-    <div class="row"><button class="btn" ${left >= 0 ? '' : 'disabled'} onclick="confirmAndNext()">${total ? 'Confirm purchase & start next round' : `Next round (target ${targetFor(S.round + 1)})`}</button></div>`;
+    <div class="row"><button class="btn" ${left >= 0 ? '' : 'disabled'} onclick="confirmAndNext()">${total ? 'Buy & continue' : `Next round (target ${targetFor(S.round + 1)})`}</button></div>`;
 }
 
 function overHTML(){
@@ -894,9 +896,11 @@ function menuDo(fn){ document.getElementById('menuList').classList.remove('open'
 const TUT_KEY = 'solatro-tutorial-seen';
 let TUT = 0;
 const TUT_STEPS = [
+  {title: 'Poker basics', text: 'A poker hand is a combination of cards. Stronger combinations score more points: a Pair beats High Card, Three of a Kind beats a Pair, and so on up to Royal Flush.',
+   stage: '<div class="tut-ladder"><span>High Card</span><span style="animation-delay:.6s">Pair</span><span style="animation-delay:1.2s">Three of a Kind</span><span style="animation-delay:1.8s">Straight</span><span style="animation-delay:2.4s">Flush</span></div>'},
   {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. Points above the target become bonus points for the shop.',
    stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Score 35 / 50</div></div>'},
-  {title: 'Select cards', text: 'Tap cards to select up to 5. Selected cards lift and get a gold border. Your choices are what you can play or discard.',
+  {title: 'Select cards', text: 'Tap cards to select up to 5. You can make a hand with fewer than 5 cards: two 8s make a Pair. Selected cards that don\'t make the hand are still played, but add no points.',
    stage: '<div class="tut-row"><div class="mini suit-0"><div class="mr">4</div><div class="ms">♠</div></div><div class="mini suit-1 tut-pick"><div class="mr">K</div><div class="ms">♥</div></div><div class="mini suit-2"><div class="mr">7</div><div class="ms">♦</div></div><div class="mini suit-3"><div class="mr">7</div><div class="ms">♣</div></div></div>'},
   {title: 'Hands and discards', text: 'Tap Hands left to play your selection. Tap Discards left to throw out the selected cards and draw replacements. You get 3 of each per round.',
    stage: '<div class="tut-counters"><div class="counter tut-glow"><div class="num">3</div><div class="lbl">Hands left</div></div><div class="counter disc tut-glow2"><div class="num">3</div><div class="lbl">Discards left</div></div></div>'},
