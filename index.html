@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOLATRO</title>
+<title>PokerRoo</title>
 <style>
 :root{--cw:clamp(44px,13.5vw,94px);--bg:#0e4d2e;--panel:#14603a;--ink:#f5f1e6;--muted:#b9d9c4;--accent:#e8c35a;--red:#d9403f;--card:#fbfaf6;--line:#2c7a4d;--ok:#4caf7a;--warn:#0b3d25}
 *{box-sizing:border-box}
@@ -26,7 +26,7 @@ h3{margin:18px 0 6px;font-size:22px}
 .tut-row{position:relative;display:flex;gap:10px;justify-content:center}
 .tut-counters{display:flex;gap:10px;width:90%;justify-content:center}
 .tut-prog{position:relative;width:80%;height:34px;background:#14603a;border-radius:8px;overflow:hidden}
-.tut-prog span{position:absolute;left:0;top:0;bottom:0;width:0;background:#4caf7a;animation:tutFill 3s ease-in-out infinite}
+.tut-prog>span{position:absolute;left:0;top:0;bottom:0;width:0;background:#4caf7a;animation:tutFill 3s ease-in-out infinite}
 .tut-ptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;text-shadow:0 1px 2px #000}
 .tut-pick{animation:tutLift 2s ease-in-out infinite;border-color:#e8c35a !important}
 .tut-glow{animation:tutGlow 1.6s ease-in-out infinite}
@@ -59,6 +59,19 @@ h3{margin:18px 0 6px;font-size:22px}
 .muted{color:var(--muted);font-size:14px}
 .prog{position:relative;height:30px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 4px}
 .prog>span{display:block;height:100%;background:var(--ok);transition:width .3s}
+.gapsplit{display:flex;height:100%;width:100%}
+.gapsplit>div{min-width:max-content;display:flex;align-items:center;justify-content:center;padding:0 10px;font-weight:800;font-size:15px;white-space:nowrap;text-shadow:0 1px 2px #000}
+.gs-now{background:var(--ok)}
+.gs-gap{background:#0b3d25;border-left:3px solid var(--accent);color:var(--ink)}
+.chip{width:20px;height:20px;border-radius:50%;border:3px dashed #fff;box-shadow:0 0 0 2px #222}
+.chip.c0{background:#b3262e}
+.chip.c1{background:#2d6fb3}
+.chip.c2{background:#2e8b57}
+.chipmore{font-weight:800;color:var(--accent);font-size:14px}
+.pv{position:relative;display:inline-block;font-weight:800;line-height:1}
+.pv::before,.pv::after{content:'';position:absolute;left:-12%;right:-12%;height:2px;background:currentColor}
+.pv::before{top:40%}
+.pv::after{top:56%}
 .progtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;text-shadow:0 1px 2px #000;pointer-events:none}
 .split{display:flex;height:100%;width:100%}
 .split>div{min-width:max-content;flex:1 1 0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;text-shadow:0 1px 2px #000;white-space:nowrap}
@@ -108,7 +121,6 @@ h3{margin:18px 0 6px;font-size:22px}
 .tokbtn:disabled{opacity:.4;cursor:not-allowed}
 .tokbtn.glow{background:#2a2110;border-color:#ffd24a;color:#ffd24a;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 10px 2px #ffc93c77}50%{box-shadow:0 0 24px 8px #ffc93cbb}}
-.shieldbadge{background:#1f5f8b;color:#fff;font-weight:900;font-size:17px;letter-spacing:.5px;padding:10px 14px;border-radius:12px;border:2px solid #7fd1ff;box-shadow:0 0 14px 2px #7fd1ff88;text-align:center;margin-bottom:10px}
 .preview{display:block;margin:10px auto 0;max-width:100%;background:#0b3d25;border:2px solid var(--line);border-radius:12px;padding:8px;text-align:center}
 .preview.dbl{border-color:#ffd24a;box-shadow:0 0 12px 2px #ffc93c66}
 .pvcards{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:50px;align-items:center}
@@ -164,7 +176,7 @@ td{padding:5px 2px;border-bottom:1px solid var(--line)}
 </style>
 </head>
 <body>
-<div class="head"><div><h1>SOLATRO</h1><div class="muted">Solo poker survival.</div></div><div class="hdrbtns"><button id="soundBtn" class="btn ghost iconbtn" onclick="toggleSound()"></button><div class="menu"><button class="btn ghost" onclick="toggleMenu()">☰ Menu</button><div class="menuList" id="menuList"><button onclick="menuDo(openTutorial)">How to play</button><button onclick="menuDo(restart)">New run</button></div></div></div></div>
+<div class="head"><div><h1>PokerRoo</h1><div class="muted">Solo poker survival.</div></div><div class="hdrbtns"><button id="soundBtn" class="btn ghost iconbtn" onclick="toggleSound()"></button><div class="menu"><button class="btn ghost" onclick="toggleMenu()">☰ Menu</button><div class="menuList" id="menuList"><button onclick="menuDo(openTutorial)">House Rules</button><button onclick="menuDo(restart)">New Table</button></div></div></div></div>
 <div id="tutorial"></div>
 <div class="wrap">
   <main class="panel" id="main"></main>
@@ -174,7 +186,8 @@ td{padding:5px 2px;border-bottom:1px solid var(--line)}
 <script>
 // ---------- Constants ----------
 const STEP = 50;                       // round target = STEP x round
-const targetFor = r => STEP * r;
+const targetFor = r => 40 * r + 10; // 50, 90, 130, ...
+const PVS = '<span class="pv">V</span>';
 const SAVE_KEY = 'solatro-run';
 
 const SUIT = ['♠','♥','♦','♣'];
@@ -210,10 +223,11 @@ const HAND_EX = {
 const ITEMS = [
   {key:'card',    name:'Extra Card',    cost:10,  desc:'+1 card in hand each round', tip:'Hand limit +1 each round. Your 9th card shows in slot 5 of row one. Resets each shop.'},
   {key:'discard', name:'Extra Discard', cost:25,  desc:'+1 discard each round', tip:'Start each round with 4 discards instead of 3. Resets each shop.'},
-  {key:'pocket',  name:'Pocket Points', cost:50,  desc:'+25 points at round start', tip:'+25 points at the start of each round for each one owned. Kept between shops. Each purchase costs 50 more than the last.'},
-  {key:'hand',    name:'Extra Hand',    cost:75,  desc:'+1 Hand each round', tip:'Start each round with 4 Hands instead of 3. Resets each shop.'},
-  {key:'double',  name:'Double Score',  cost:100, desc:'Double one played hand', tip:'Toggle it on before playing to double that hand. It is used up when a hand is played with it on. Kept between shops.'},
-  {key:'shield',  name:'Shield',        cost:150, desc:'Saves one failed round', tip:'Automatically saves one failed round, then is used up. Kept between shops.'}
+  {key:'pocket',  name:'Pocket Change', cost:50,  desc:'+25 <span class="pv">V</span> at round start', tip:'+25 V̶̶ at the start of each round for each one owned. Kept between shops. Each purchase costs 50 V̶̶ more than the last.'},
+  {key:'hand',    name:'Extra Hand',    cost:50,  desc:'+1 Hand each round', tip:'Start each round with 4 Hands instead of 3. Resets each shop.'},
+  {key:'fresh',   name:'Fresh Start',   cost:40,  desc:'Once per round: new hand', tip:'Once per round, discard your whole hand and draw a new one. Resets each shop.'},
+  {key:'insurance', name:'Joker Insurance', cost:60, desc:'Once per round: keep banked Joker', tip:'Once per round, if a second Joker is drawn while one is banked, the banked Joker is kept and the new one is lost. Resets each shop.'},
+  {key:'double',  name:'Double Down',  cost:75, desc:'Double one played hand', tip:'Toggle it on before playing to double that hand. It is used up when a hand is played with it on. Kept between shops.'},
 ];
 
 // ---------- Cards ----------
@@ -375,7 +389,11 @@ function drawTo(n, opening = false){
     }
     const c = S.deck.pop();
     if (c.joker){
-      if (S.banked){
+      if (S.banked && S.owned.includes('insurance') && !S.used.includes('insurance')){
+        S.used.push('insurance');
+        S.discard.push(c);
+        setFlash('Joker Insurance kept your banked Joker!', 'gold');
+      } else if (S.banked){
         const atOnce = bankedNow || opening;
         S.discard.push(c, S.banked);
         S.banked = null;
@@ -435,6 +453,18 @@ function toggleJoker(){
   render();
 }
 
+function freshStart(){
+  if (S.phase !== 'play' || !S.owned.includes('fresh') || S.used.includes('fresh')) return;
+  S.discard.push(...S.hand);
+  S.hand = [];
+  S.selected = [];
+  S.useJoker = false;
+  S.used.push('fresh');
+  SFX.discard();
+  drawTo(S.limit);
+  render();
+}
+
 function toggleDouble(){
   if (S.phase !== 'play' || !S.owned.includes('double') || S.used.includes('double')) return;
   S.doubleOn = !S.doubleOn;
@@ -491,15 +521,8 @@ function endRound(){
     S.bonus = S.score - target;
     S.phase = 'shop';
     S.lastResult = 'cleared';
-    S.owned = S.owned.filter(k => k === 'pocket' || k === 'shield' || k === 'double'); // other tokens reset each shop
+    S.owned = S.owned.filter(k => k === 'pocket' || k === 'double'); // other bonuses reset each shop
     SFX.win();
-  } else if (S.owned.includes('shield')){
-    S.owned = S.owned.filter(k => k === 'pocket' || k === 'double'); // Shield is used up by saving the round
-    S.survived = S.round;
-    S.bonus = 0;
-    S.phase = 'shop';
-    S.lastResult = 'shield';
-    SFX.lose();
   } else {
     S.phase = 'over';
     S.lastResult = null;
@@ -518,7 +541,7 @@ function buy(key){
   if (S.bonus < cost) return render();
   S.bonus -= cost;
   S.owned.push(key);
-  S.stats.bought.push(item.name);
+  S.stats.bought.push(item.key);
   render();
 }
 
@@ -570,6 +593,15 @@ function loadRun(){
     st.discard = st.discard.map(id => ALL[id]);
     st.banked = st.banked === null ? null : ALL[st.banked];
     st.pileView = null;
+    const known = k => ITEMS.some(i => i.key === k);
+    st.owned = (st.owned || []).filter(known);
+    st.cart = Object.fromEntries(Object.entries(st.cart || {}).filter(([k]) => known(k)));
+    st.stats = st.stats || {bestHand: null, bestPlay: 0, handsPlayed: 0, bought: []};
+    st.stats.bought = (st.stats.bought || []).map(n => {
+      const legacy = {'Pocket Points': 'pocket', 'Double Score': 'double', 'Double V': 'double'};
+      const it = ITEMS.find(i => i.key === n || i.name === n || i.key === legacy[n]);
+      return it ? it.key : null;
+    }).filter(Boolean);
     S = Object.assign(fresh(), st);
     return true;
   }catch(e){ return false; }
@@ -605,6 +637,7 @@ function tokensHTML(){
   if (!S.owned.length) return '<span class="muted">None</span>';
   return [...new Set(S.owned)].map(k => {
     const it = ITEMS.find(i => i.key === k);
+    if (!it) return '';
     const n = S.owned.filter(x => x === k).length;
     return `<div><span class="tok" data-tip="${it.tip}">${it.name}${n > 1 ? ` ×${n}` : ''}</span></div>`;
   }).join('');
@@ -614,9 +647,11 @@ function tokensHTML(){
 function playHTML(target){
   const pct = Math.min(100, S.score / target * 100);
   const over = S.score > target;
+  const remain = Math.max(0, target - S.score);
+  const needLine = '';
   const barInner = over
-    ? `<div class="split"><div class="seg1" style="flex:${target} 1 0">Score: ${target}/${target}</div><div class="seg2" style="flex:${S.score - target} 1 0">+${S.score - target} Bonus</div></div>`
-    : `<span style="width:${pct}%"></span><div class="progtxt"><span>Score <span id="scoreNum">${S.score}</span> / ${target}</span></div>`;
+    ? `<div class="split"><div class="seg1" style="flex:${target} 1 0">Buy In: ${target}${PVS}</div><div class="seg2" style="flex:${S.score - target} 1 0">+${S.score - target}${PVS}</div></div>`
+    : `<div class="gapsplit"><div class="gs-now" style="flex:${S.score} 1 0"><span id="scoreNum">${S.score}</span>${PVS}</div><div class="gs-gap" style="flex:${target - S.score} 1 0">To Next Buy-In ${target - S.score}${PVS}</div></div>`;
 
   const sorted = [...S.hand].sort(S.sort === 'suit'
     ? (a, b) => a.suit - b.suit || b.rank - a.rank
@@ -630,12 +665,12 @@ function playHTML(target){
   const sortToggle = `<div class="handhdr"><div class="seg"><button class="${S.sort === 'rank' ? 'on' : ''}" onclick="setSort('rank')">Rank</button><button class="${S.sort === 'suit' ? 'on' : ''}" onclick="setSort('suit')">Suit</button></div><button class="btn ghost clearbtn" ${S.selected.length || S.useJoker ? '' : 'disabled'} onclick="clearSel()">Clear</button></div>`;
 
   const flash = S.flash ? `<div class="flash ${S.flash.kind}">${S.flash.text}</div>` : '';
-  const shield = S.owned.includes('shield') ? `<div class="shieldbadge">🛡️ SHIELD ACTIVE · saves your next failed round</div>` : '';
 
   let dbl = '';
+  if (S.owned.includes('fresh') && !S.used.includes('fresh')) dbl += `<button class="tokbtn" onclick="freshStart()" ${S.phase !== 'play' ? 'disabled' : ''}>Fresh Start</button>`;
   if (S.owned.includes('double')){
-    if (S.used.includes('double')) dbl = `<div class="muted" style="text-align:center">Double Score used this round.</div>`;
-    else dbl = `<div class="row"><button class="tokbtn ${S.doubleOn ? 'glow' : ''}" onclick="toggleDouble()" ${S.phase !== 'play' ? 'disabled' : ''}>Double Score${S.doubleOn ? ' · ON' : ''}</button></div>`;
+    if (S.used.includes('double')) dbl += `<div class="muted" style="text-align:center">Double Down used this round.</div>`;
+    else dbl += `<button class="tokbtn ${S.doubleOn ? 'glow' : ''}" onclick="toggleDouble()" ${S.phase !== 'play' ? 'disabled' : ''}>Double Down${S.doubleOn ? ' · ON' : ''}</button>`;
   }
 
   const piles = `<div class="piles"><button class="pile" onclick="openPile('deck')">Deck <b>${S.deck.length}</b></button><button class="pile" onclick="openPile('discard')">Discard <b>${S.discard.length}</b></button></div>`;
@@ -647,7 +682,7 @@ function playHTML(target){
     ...(S.useJoker && S.banked ? [miniJokerHTML(!(PLAY && PLAY.joker))] : [])
   ].join('');
   const pvText = PLAY
-    ? `${PLAY.name} · ${PLAY.pts} + ${PLAY.total - PLAY.pts} = ${PLAY.total}${S.doubleOn ? ` × 2 = ${PLAY.total * 2}` : ''} pts`
+    ? `${PLAY.name} · ${PLAY.pts}${PVS} + ${PLAY.total - PLAY.pts}${PVS} = ${PLAY.total}${PVS}${S.doubleOn ? ` × 2 = ${PLAY.total * 2}${PVS}` : ''}`
     : '';
   const previewHTML = `<div class="preview ${S.doubleOn ? 'dbl' : ''}"><div class="pvcards">${minis || '<span class="muted">Select cards to preview your hand</span>'}</div>${PLAY ? `<div class="pvname">${pvText}</div>` : ''}</div>`;
 
@@ -657,12 +692,12 @@ function playHTML(target){
 
   return `
     ${flash}
-    ${shield}
-    <h2>Round ${S.round}</h2>
+    <h2>Table ${S.round}</h2>
     <div class="prog">${barInner}</div>
+    ${needLine}
     ${previewHTML}
     <div class="handwrap">${sortToggle}<div class="hand">${hand || '<span class="muted">Hand empty</span>'}</div></div>
-    ${dbl}
+    ${dbl ? `<div class="row">${dbl}</div>` : ''}
     ${piles}
     <div class="counters">
       <button class="counter" ${canPlay ? '' : 'disabled'} onclick="playHand()">
@@ -710,7 +745,7 @@ function buyCart(){
     for (let j = 0; j < q; j++){
       S.bonus -= itemCost(it);
       S.owned.push(it.key);
-      S.stats.bought.push(it.name);
+      S.stats.bought.push(it.key);
     }
   }
   S.cart = {};
@@ -740,46 +775,47 @@ function shopHTML(){
       else ctl = `<button class="btn" ${total + price > S.bonus ? 'disabled' : ''} onclick="cartAdj('${i.key}',1)">Add</button>`;
     }
     return `<div class="item">
-      <div class="iname">${i.name} <span class="icost">${price}</span></div>
+      <div class="iname">${i.name} <span class="icost">${price}${PVS}</span></div>
       <div class="idesc">${i.desc}</div>
       <div class="ictl">${ctl}</div>
     </div>`;
   }).join('');
   const lines = ITEMS.filter(i => cartQty(i.key) > 0)
-    .map(i => `<div class="cline"><span>${i.name}${i.key === 'pocket' ? ` ×${cartQty(i.key)}` : ''}</span><span>${cartLineCost(i)}</span></div>`)
+    .map(i => `<div class="cline"><span>${i.name}${i.key === 'pocket' ? ` ×${cartQty(i.key)}` : ''}</span><span>${cartLineCost(i)}${PVS}</span></div>`)
     .join('') || '<div class="muted">Cart is empty</div>';
   return `
-    <div class="clearhdr">${S.lastResult === 'shield' ? 'Shield saved you!' : `Round ${S.round} cleared!`}</div>
-    <p>Bonus points to spend: <b>${S.bonus}</b>. Use'em or lose'em</p>
-    <p class="muted">Extra Card, Extra Discard and Extra Hand reset each shop. Shield, Pocket Points and Double Score carry over.</p>
+    <div class="clearhdr">Table ${S.round} cleared!</div>
+    <p>Bonus <span class="pv">V</span> to spend: <b>${S.bonus}${PVS}</b>. Use'em or lose'em</p>
+    <p class="muted">Extra Card, Extra Discard, Extra Hand, Fresh Start and Joker Insurance reset each shop. Pocket Change and Double Down carry over.</p>
     ${rows}
     <div class="cart">
       <h3>Cart</h3>
       ${lines}
-      <div class="ctotal"><span>Total</span><b>${total}</b></div>
-      <div class="muted">Left after purchase: ${left}</div>
+      <div class="ctotal"><span>Total</span><b>${total}${PVS}</b></div>
+      <div class="muted">Left after purchase: ${left}${PVS}</div>
       <div class="row"><button class="btn ghost" ${total ? '' : 'disabled'} onclick="cartClear()">Clear cart</button></div>
     </div>
-    <div class="row"><button class="btn" ${left >= 0 ? '' : 'disabled'} onclick="confirmAndNext()">${total ? 'Buy & continue' : `Next round (target ${targetFor(S.round + 1)})`}</button></div>`;
+    <div class="row"><button class="btn" ${left >= 0 ? '' : 'disabled'} onclick="confirmAndNext()">${total ? 'Buy & continue' : `Next round (target ${targetFor(S.round + 1)}${PVS})`}</button></div>`;
 }
 
 function overHTML(){
   const st = S.stats;
   const counts = {};
-  st.bought.forEach(n => counts[n] = (counts[n] || 0) + 1);
+  st.bought.forEach(k => counts[k] = (counts[k] || 0) + 1);
   const handKey = Object.keys(HAND).find(k => HAND[k] === st.bestHand);
   const bestCell = st.bestHand
-    ? `<span class="htip tipleft">${st.bestHand}<span class="tipbox"><span class="tipdesc">${HAND_TIP[handKey]}</span><span class="tipcards">${tipCardsHTML(Number(handKey))}</span></span></span> (${st.bestPlay} pts)`
+    ? `<span class="htip tipleft">${st.bestHand}<span class="tipbox"><span class="tipdesc">${HAND_TIP[handKey]}</span><span class="tipcards">${tipCardsHTML(Number(handKey))}</span></span></span> (${st.bestPlay} <span class="pv">V</span>)`
     : '—';
   const boughtRows = Object.keys(counts).length
-    ? Object.entries(counts).map(([n, k]) => {
-        const it = ITEMS.find(i => i.name === n);
-        return `<tr><td><span class="tok" data-tip="${it.tip}">${n}</span></td><td style="text-align:right">×${k}</td></tr>`;
+    ? Object.entries(counts).map(([key, k]) => {
+        const it = ITEMS.find(i => i.key === key);
+        if (!it) return '';
+        return `<tr><td><span class="tok" data-tip="${it.tip}">${it.name}</span></td><td style="text-align:right">×${k}</td></tr>`;
       }).join('')
     : '<tr><td colspan="2">None</td></tr>';
   return `
-    <h2>Run over</h2>
-    <p>You fell short in round ${S.round}: ${S.score}/${targetFor(S.round)}.</p>
+    <h2>Busted</h2>
+    <p>You fell short at table ${S.round}: ${S.score}${PVS}/${targetFor(S.round)}${PVS}.</p>
     <table class="sum">
       <tr><td>Rounds survived</td><td style="text-align:right"><b>${S.survived}</b></td></tr>
       <tr><td>Best hand</td><td style="text-align:right">${bestCell}</td></tr>
@@ -817,7 +853,7 @@ function sheetHTML(){
     <h3>Hands${S.doubleOn ? ' (×2)' : ''}</h3>
     <div class="muted" style="font-size:13px;margin-bottom:6px">Plus the value of each scoring card</div>
     <table class="hands">
-      ${HAND_LIST.map(p => `<tr class="${hl === HAND[p] ? 'on' : ''} ${S.doubleOn ? 'dbl' : ''}"><td><span class="htip">${HAND[p]}<span class="tipbox"><span class="tipdesc">${HAND_TIP[p]}</span><span class="tipcards">${tipCardsHTML(p)}</span></span></span></td><td class="pts" style="text-align:right">${p * m}</td></tr>`).join('')}
+      ${HAND_LIST.map(p => `<tr class="${hl === HAND[p] ? 'on' : ''} ${S.doubleOn ? 'dbl' : ''}"><td><span class="htip">${HAND[p]}<span class="tipbox"><span class="tipdesc">${HAND_TIP[p]}</span><span class="tipcards">${tipCardsHTML(p)}</span></span></span></td><td class="pts" style="text-align:right">${p * m}${PVS}</td></tr>`).join('')}
     </table>
 `;
 }
@@ -875,7 +911,7 @@ function render(){
     const f = FX.score;
     FX.score = null;
     tweenScore(f.prev, S.score);
-    popScore(`${f.name} +${f.total}${f.doubled ? ' ×2' : ''}`);
+    popScore(`${f.name} +${f.total} ${PVA}${f.doubled ? ' ×2' : ''}`);
   }
   const sb = document.getElementById('soundBtn');
   if (sb){ sb.innerHTML = soundIcon(S.sound); sb.title = S.sound ? 'Sound on' : 'Sound muted'; sb.setAttribute('aria-label', sb.title); }
@@ -896,19 +932,19 @@ function menuDo(fn){ document.getElementById('menuList').classList.remove('open'
 const TUT_KEY = 'solatro-tutorial-seen';
 let TUT = 0;
 const TUT_STEPS = [
-  {title: 'Poker basics', text: 'A poker hand is a combination of cards. Stronger combinations score more points: a Pair beats High Card, Three of a Kind beats a Pair, and so on up to Royal Flush.',
+  {title: 'Poker basics', text: 'A poker hand is a combination of cards. Stronger combinations score more <span class="pv">V</span>: a Pair beats High Card, Three of a Kind beats a Pair, and so on up to Royal Flush.',
    stage: '<div class="tut-ladder"><span>High Card</span><span style="animation-delay:.6s">Pair</span><span style="animation-delay:1.2s">Three of a Kind</span><span style="animation-delay:1.8s">Straight</span><span style="animation-delay:2.4s">Flush</span></div>'},
-  {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. Points above the target become bonus points for the shop.',
-   stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Score 35 / 50</div></div>'},
-  {title: 'Select cards', text: 'Tap cards to select up to 5. You can make a hand with fewer than 5 cards: two 8s make a Pair. Selected cards that don\'t make the hand are still played, but add no points.',
+  {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. <span class="pv">V</span> above the target become bonus <span class="pv">V</span> for the shop.',
+   stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Buy In 35 <span class="pv">V</span> / 50 <span class="pv">V</span></div></div>'},
+  {title: 'Select cards', text: 'Tap cards to select up to 5. You can make a hand with fewer than 5 cards: two 8s make a Pair. Selected cards that don\'t make the hand are still played, but add no <span class="pv">V</span>.',
    stage: '<div class="tut-row"><div class="mini suit-0"><div class="mr">4</div><div class="ms">♠</div></div><div class="mini suit-1 tut-pick"><div class="mr">K</div><div class="ms">♥</div></div><div class="mini suit-2"><div class="mr">7</div><div class="ms">♦</div></div><div class="mini suit-3"><div class="mr">7</div><div class="ms">♣</div></div></div>'},
   {title: 'Hands and discards', text: 'Tap Hands left to play your selection. Tap Discards left to throw out the selected cards and draw replacements. You get 3 of each per round.',
    stage: '<div class="tut-counters"><div class="counter tut-glow"><div class="num">3</div><div class="lbl">Hands left</div></div><div class="counter disc tut-glow2"><div class="num">3</div><div class="lbl">Discards left</div></div></div>'},
-  {title: 'Scoring', text: 'Only cards that make the hand add their value. A Pair of 7s scores 10 for the pair plus 7 + 7, for 24 points. Unrelated cards add nothing.',
-   stage: '<div class="tut-row"><div class="mini suit-1 tut-score"><div class="mr">7</div><div class="ms">♥</div></div><div class="mini suit-0 tut-score" style="animation-delay:.3s"><div class="mr">7</div><div class="ms">♠</div></div><div class="mini suit-2 dim"><div class="mr">2</div><div class="ms">♦</div></div><div class="tut-pop">Pair +24</div></div>'},
-  {title: 'Bonus Shop', text: 'Clear a round and the extra points become bonus points. Spend them in the Bonus Shop. Points you do not spend are lost.',
-   stage: '<div class="tut-shop"><div class="tut-bonus">+40 Bonus</div><div class="tut-item">Pocket Points · 50</div></div>'},
-  {title: 'Jokers', text: 'A Joker is a wildcard worth 0 points. Drawing one banks it for later. Drawing a second Joker while one is banked loses both.',
+  {title: 'Scoring', text: 'Only cards that make the hand add their value. A Pair of 7s scores 10 for the pair plus 7 + 7, for 24 <span class="pv">V</span>. Unrelated cards add nothing.',
+   stage: '<div class="tut-row"><div class="mini suit-1 tut-score"><div class="mr">7</div><div class="ms">♥</div></div><div class="mini suit-0 tut-score" style="animation-delay:.3s"><div class="mr">7</div><div class="ms">♠</div></div><div class="mini suit-2 dim"><div class="mr">2</div><div class="ms">♦</div></div><div class="tut-pop">Pair +24 <span class="pv">V</span></div></div>'},
+  {title: 'Bonus Shop', text: 'Clear a round and the extra <span class="pv">V</span> become bonus <span class="pv">V</span>. Spend them in the Bonus Shop. <span class="pv">V</span> you do not spend are lost.',
+   stage: '<div class="tut-shop"><div class="tut-bonus">+40 <span class="pv">V</span> Bonus</div><div class="tut-item">Pocket Change · 50 <span class="pv">V</span></div></div>'},
+  {title: 'Jokers', text: 'A Joker is a wildcard worth 0 <span class="pv">V</span>. Drawing one banks it for later. Drawing a second Joker while one is banked loses both.',
    stage: '<div class="tut-stack"><div class="flash gold tut-f1">Joker banked! Use it as a wildcard.</div><div class="flash red tut-f2">Banked Joker lost!</div></div>'}
 ];
 
@@ -917,7 +953,7 @@ function tutorialHTML(){
   const last = TUT === TUT_STEPS.length - 1;
   const dots = TUT_STEPS.map((_, i) => `<span class="tut-dot ${i === TUT ? 'on' : ''}"></span>`).join('');
   return `<div class="modal tut-modal">
-    <div class="muted">How to play · ${TUT + 1} / ${TUT_STEPS.length}</div>
+    <div class="muted">House Rules · ${TUT + 1} / ${TUT_STEPS.length}</div>
     <h2>${s.title}</h2>
     <div class="tut-stage">${s.stage}</div>
     <p>${s.text}</p>
