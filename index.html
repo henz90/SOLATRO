@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PokerRoo</title>
+<title>Pokeroo</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cpath%20d%3D%27M12%2044%20L6%2022%20L20%2032%20L32%2010%20L44%2032%20L58%2022%20L52%2044%20Z%27%20fill%3D%27%236a2bb0%27%2F%3E%3Crect%20x%3D%2712%27%20y%3D%2744%27%20width%3D%2740%27%20height%3D%278%27%20rx%3D%273%27%20fill%3D%27%23f2b84b%27%2F%3E%3Ccircle%20cx%3D%276%27%20cy%3D%2722%27%20r%3D%274%27%20fill%3D%27%23f2b84b%27%2F%3E%3Ccircle%20cx%3D%2732%27%20cy%3D%2710%27%20r%3D%274%27%20fill%3D%27%23f2b84b%27%2F%3E%3Ccircle%20cx%3D%2758%27%20cy%3D%2722%27%20r%3D%274%27%20fill%3D%27%23f2b84b%27%2F%3E%3C%2Fsvg%3E">
 <style>
 :root{--cw:clamp(44px,13.5vw,94px);--bg:#0e4d2e;--panel:#14603a;--ink:#f5f1e6;--muted:#b9d9c4;--accent:#e8c35a;--red:#d9403f;--card:#fbfaf6;--line:#2c7a4d;--ok:#4caf7a;--warn:#0b3d25}
@@ -177,7 +177,7 @@ td{padding:5px 2px;border-bottom:1px solid var(--line)}
 </style>
 </head>
 <body>
-<div class="head"><div><h1>PokerRoo</h1><div class="muted">Solo poker survival.</div></div><div class="hdrbtns"><button id="soundBtn" class="btn ghost iconbtn" onclick="toggleSound()"></button><div class="menu"><button class="btn ghost" onclick="toggleMenu()">☰ Menu</button><div class="menuList" id="menuList"><button onclick="menuDo(openTutorial)">House Rules</button><button onclick="menuDo(restart)">New Table</button></div></div></div></div>
+<div class="head"><div><h1>Pokeroo</h1><div class="muted">Solo poker survival.</div></div><div class="hdrbtns"><button id="soundBtn" class="btn ghost iconbtn" onclick="toggleSound()"></button><div class="menu"><button class="btn ghost" onclick="toggleMenu()">☰ Menu</button><div class="menuList" id="menuList"><button onclick="menuDo(openTutorial)">House Rules</button><button onclick="menuDo(restart)">New Round</button></div></div></div></div>
 <div id="tutorial"></div>
 <div class="wrap">
   <main class="panel" id="main"></main>
@@ -188,7 +188,7 @@ td{padding:5px 2px;border-bottom:1px solid var(--line)}
 // ---------- Constants ----------
 const STEP = 50;                       // round target = STEP x round
 const targetFor = r => 40 * r + 10; // 50, 90, 130, ...
-const PVS = '<span class="pv">V</span>';
+const PVS = ' pts';
 const SAVE_KEY = 'solatro-run';
 
 const SUIT = ['♠','♥','♦','♣'];
@@ -224,7 +224,7 @@ const HAND_EX = {
 const ITEMS = [
   {key:'card',    name:'Extra Card',    cost:10,  desc:'+1 card in hand each round', tip:'Hand limit +1 each round. Your 9th card shows in slot 5 of row one. Resets each shop.'},
   {key:'discard', name:'Extra Discard', cost:25,  desc:'+1 discard each round', tip:'Start each round with 4 discards instead of 3. Resets each shop.'},
-  {key:'pocket',  name:'Pocket Change', cost:50,  desc:'+25 <span class="pv">V</span> at round start', tip:'+25 V̶̶ at the start of each round for each one owned. Kept between shops. Each purchase costs 50 V̶̶ more than the last.'},
+  {key:'pocket',  name:'Pocket Change', cost:50,  desc:'+25 pts at round start', tip:'+25 pts at the start of each round for each one owned. Kept between shops. Each purchase costs 50 points more than the last.'},
   {key:'hand',    name:'Extra Hand',    cost:50,  desc:'+1 Hand each round', tip:'Start each round with 4 Hands instead of 3. Resets each shop.'},
   {key:'fresh',   name:'Fresh Start',   cost:40,  desc:'Once per round: new hand', tip:'Once per round, discard your whole hand and draw a new one. Resets each shop.'},
   {key:'insurance', name:'Joker Insurance', cost:60, desc:'Once per round: keep banked Joker', tip:'Once per round, if a second Joker is drawn while one is banked, the banked Joker is kept and the new one is lost. Resets each shop.'},
@@ -651,8 +651,8 @@ function playHTML(target){
   const remain = Math.max(0, target - S.score);
   const needLine = '';
   const barInner = over
-    ? `<div class="split"><div class="seg1" style="flex:${target} 1 0">Buy In: ${target}${PVS}</div><div class="seg2" style="flex:${S.score - target} 1 0">+${S.score - target}${PVS}</div></div>`
-    : `<div class="gapsplit"><div class="gs-now" style="flex:${S.score} 1 0"><span id="scoreNum">${S.score}</span>${PVS}</div><div class="gs-gap" style="flex:${target - S.score} 1 0">To Next Buy-In ${target - S.score}${PVS}</div></div>`;
+    ? `<div class="split"><div class="seg1" style="flex:${target} 1 0">Score: ${target}${PVS}</div><div class="seg2" style="flex:${S.score - target} 1 0">+${S.score - target}${PVS}</div></div>`
+    : `<div class="gapsplit"><div class="gs-now" style="flex:${S.score} 1 0"><span id="scoreNum">${S.score}</span>${PVS}</div><div class="gs-gap" style="flex:${target - S.score} 1 0">${target - S.score}${PVS} Needed</div></div>`;
 
   const sorted = [...S.hand].sort(S.sort === 'suit'
     ? (a, b) => a.suit - b.suit || b.rank - a.rank
@@ -693,7 +693,7 @@ function playHTML(target){
 
   return `
     ${flash}
-    <h2>Table ${S.round}</h2>
+    <h2>Round ${S.round}</h2>
     <div class="prog">${barInner}</div>
     ${needLine}
     ${previewHTML}
@@ -785,8 +785,8 @@ function shopHTML(){
     .map(i => `<div class="cline"><span>${i.name}${i.key === 'pocket' ? ` ×${cartQty(i.key)}` : ''}</span><span>${cartLineCost(i)}${PVS}</span></div>`)
     .join('') || '<div class="muted">Cart is empty</div>';
   return `
-    <div class="clearhdr">Table ${S.round} cleared!</div>
-    <p>Bonus <span class="pv">V</span> to spend: <b>${S.bonus}${PVS}</b>. Use'em or lose'em</p>
+    <div class="clearhdr">Round ${S.round} cleared!</div>
+    <p>Bonus points to spend: <b>${S.bonus}${PVS}</b>. Use'em or lose'em</p>
     <p class="muted">Extra Card, Extra Discard, Extra Hand, Fresh Start and Joker Insurance reset each shop. Pocket Change and Double Down carry over.</p>
     ${rows}
     <div class="cart">
@@ -805,7 +805,7 @@ function overHTML(){
   st.bought.forEach(k => counts[k] = (counts[k] || 0) + 1);
   const handKey = Object.keys(HAND).find(k => HAND[k] === st.bestHand);
   const bestCell = st.bestHand
-    ? `<span class="htip tipleft">${st.bestHand}<span class="tipbox"><span class="tipdesc">${HAND_TIP[handKey]}</span><span class="tipcards">${tipCardsHTML(Number(handKey))}</span></span></span> (${st.bestPlay} <span class="pv">V</span>)`
+    ? `<span class="htip tipleft">${st.bestHand}<span class="tipbox"><span class="tipdesc">${HAND_TIP[handKey]}</span><span class="tipcards">${tipCardsHTML(Number(handKey))}</span></span></span> (${st.bestPlay} pts)`
     : '—';
   const boughtRows = Object.keys(counts).length
     ? Object.entries(counts).map(([key, k]) => {
@@ -816,7 +816,7 @@ function overHTML(){
     : '<tr><td colspan="2">None</td></tr>';
   return `
     <h2>Busted</h2>
-    <p>You fell short at table ${S.round}: ${S.score}${PVS}/${targetFor(S.round)}${PVS}.</p>
+    <p>You fell short in round ${S.round}: ${S.score}${PVS}/${targetFor(S.round)}${PVS}.</p>
     <table class="sum">
       <tr><td>Rounds survived</td><td style="text-align:right"><b>${S.survived}</b></td></tr>
       <tr><td>Best hand</td><td style="text-align:right">${bestCell}</td></tr>
@@ -933,19 +933,19 @@ function menuDo(fn){ document.getElementById('menuList').classList.remove('open'
 const TUT_KEY = 'solatro-tutorial-seen';
 let TUT = 0;
 const TUT_STEPS = [
-  {title: 'Poker basics', text: 'A poker hand is a combination of cards. Stronger combinations score more <span class="pv">V</span>: a Pair beats High Card, Three of a Kind beats a Pair, and so on up to Royal Flush.',
+  {title: 'Poker basics', text: 'A poker hand is a combination of cards. Stronger combinations score more points: a Pair beats High Card, Three of a Kind beats a Pair, and so on up to Royal Flush.',
    stage: '<div class="tut-ladder"><span>High Card</span><span style="animation-delay:.6s">Pair</span><span style="animation-delay:1.2s">Three of a Kind</span><span style="animation-delay:1.8s">Straight</span><span style="animation-delay:2.4s">Flush</span></div>'},
-  {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. <span class="pv">V</span> above the target become bonus <span class="pv">V</span> for the shop.',
-   stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Buy In 35 <span class="pv">V</span> / 50 <span class="pv">V</span></div></div>'},
-  {title: 'Select cards', text: 'Tap cards to select up to 5. You can make a hand with fewer than 5 cards: two 8s make a Pair. Selected cards that don\'t make the hand are still played, but add no <span class="pv">V</span>.',
+  {title: 'Goal', text: 'Each round has a target. Play hands to build your score past it. Points above the target become bonus points for the shop.',
+   stage: '<div class="tut-prog"><span></span><div class="tut-ptxt">Score 35 pts / 50 pts</div></div>'},
+  {title: 'Select cards', text: 'Tap cards to select up to 5. You can make a hand with fewer than 5 cards: two 8s make a Pair. Selected cards that don\'t make the hand are still played, but add no points.',
    stage: '<div class="tut-row"><div class="mini suit-0"><div class="mr">4</div><div class="ms">♠</div></div><div class="mini suit-1 tut-pick"><div class="mr">K</div><div class="ms">♥</div></div><div class="mini suit-2"><div class="mr">7</div><div class="ms">♦</div></div><div class="mini suit-3"><div class="mr">7</div><div class="ms">♣</div></div></div>'},
   {title: 'Hands and discards', text: 'Tap Hands left to play your selection. Tap Discards left to throw out the selected cards and draw replacements. You get 3 of each per round.',
    stage: '<div class="tut-counters"><div class="counter tut-glow"><div class="num">3</div><div class="lbl">Hands left</div></div><div class="counter disc tut-glow2"><div class="num">3</div><div class="lbl">Discards left</div></div></div>'},
-  {title: 'Scoring', text: 'Only cards that make the hand add their value. A Pair of 7s scores 10 for the pair plus 7 + 7, for 24 <span class="pv">V</span>. Unrelated cards add nothing.',
-   stage: '<div class="tut-row"><div class="mini suit-1 tut-score"><div class="mr">7</div><div class="ms">♥</div></div><div class="mini suit-0 tut-score" style="animation-delay:.3s"><div class="mr">7</div><div class="ms">♠</div></div><div class="mini suit-2 dim"><div class="mr">2</div><div class="ms">♦</div></div><div class="tut-pop">Pair +24 <span class="pv">V</span></div></div>'},
-  {title: 'Bonus Shop', text: 'Clear a round and the extra <span class="pv">V</span> become bonus <span class="pv">V</span>. Spend them in the Bonus Shop. <span class="pv">V</span> you do not spend are lost.',
-   stage: '<div class="tut-shop"><div class="tut-bonus">+40 <span class="pv">V</span> Bonus</div><div class="tut-item">Pocket Change · 50 <span class="pv">V</span></div></div>'},
-  {title: 'Jokers', text: 'A Joker is a wildcard worth 0 <span class="pv">V</span>. Drawing one banks it for later. Drawing a second Joker while one is banked loses both.',
+  {title: 'Scoring', text: 'Only cards that make the hand add their value. A Pair of 7s scores 10 for the pair plus 7 + 7, for 24 pts. Unrelated cards add nothing.',
+   stage: '<div class="tut-row"><div class="mini suit-1 tut-score"><div class="mr">7</div><div class="ms">♥</div></div><div class="mini suit-0 tut-score" style="animation-delay:.3s"><div class="mr">7</div><div class="ms">♠</div></div><div class="mini suit-2 dim"><div class="mr">2</div><div class="ms">♦</div></div><div class="tut-pop">Pair +24 pts</div></div>'},
+  {title: 'Bonus Shop', text: 'Clear a round and the extra points become bonus points. Spend them in the Bonus Shop. Points you do not spend are lost.',
+   stage: '<div class="tut-shop"><div class="tut-bonus">+40 pts Bonus</div><div class="tut-item">Pocket Change · 50 points</div></div>'},
+  {title: 'Jokers', text: 'A Joker is a wildcard worth 0 points. Drawing one banks it for later. Drawing a second Joker while one is banked loses both.',
    stage: '<div class="tut-stack"><div class="flash gold tut-f1">Joker banked! Use it as a wildcard.</div><div class="flash red tut-f2">Banked Joker lost!</div></div>'}
 ];
 
